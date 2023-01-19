@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Google Books'),
+        title: Text('Google Libri'),
       ),
       body: Column(
         children: <Widget>[
@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Cerca un libro',
+                hintText: 'Cerca un libro o un autore',
               ),
             ),
           ),
@@ -73,14 +73,26 @@ class _HomePageState extends State<HomePage> {
   }
 
   void searchBooks(String query) async {
-    final response =
-        await http.get('https://www.googleapis.com/books/v1/volumes?q=$query');
+    final response = await http.get(
+        'https://www.googleapis.com/books/v1/volumes?q=intitle:$query+inauthor:$query');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      setState(() {
-        _books =
-            data['items'].map<Book>((book) => Book.fromJson(book)).toList();
-      });
+      if (data != null) {
+        setState(() {
+          _books = data['items']
+                  ?.map<Book>((book) => Book.fromJson(book))
+                  ?.toList() ??
+              [];
+          if (data['totalItems'] == 0) {
+            _books.add(Book(
+                title: "Nessun risultato trovato",
+                author: "",
+                synopsis: "",
+                price: "",
+                thumbnail: ""));
+          }
+        });
+      }
     }
   }
 }
@@ -143,7 +155,7 @@ class Book {
 
   factory Book.fromJson(Map<String, dynamic> json) {
     final price = json['saleInfo']['listPrice'] != null
-        ? '€' + json['saleInfo']['listPrice']['amount'].toStringAsFixed(2)
+        ? 'EUR' + json['saleInfo']['listPrice']['amount'].toStringAsFixed(2)
         : 'Prezzo non disponibile';
     final thumbnail = json['volumeInfo']['imageLinks'] != null
         ? json['volumeInfo']['imageLinks']['thumbnail']
