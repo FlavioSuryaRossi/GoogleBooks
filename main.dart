@@ -55,14 +55,14 @@ class _HomePageState extends State<HomePage> {
                 return ListTile(
                   title: Text(_books[index].title),
                   subtitle: Text(_books[index].author),
-                  /*onTap: () {
+                  onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => BookPage(_books[index]),
                       ),
                     );
-                  },*/
+                  },
                 );
               },
             ),
@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-/*
+
 class BookPage extends StatelessWidget {
   final Book book;
 
@@ -148,7 +148,7 @@ class BookPage extends StatelessWidget {
         )));
   }
 }
-*/
+
 class Book {
   late String id;
   late String title;
