@@ -55,14 +55,14 @@ class _HomePageState extends State<HomePage> {
                 return ListTile(
                   title: Text(_books[index].title),
                   subtitle: Text(_books[index].author),
-                  onTap: () {
+                  /*onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => BookPage(_books[index]),
                       ),
                     );
-                  },
+                  },*/
                 );
               },
             ),
@@ -73,8 +73,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void searchBooks(String query) async {
-    final response = await http.get(
-        'https://www.googleapis.com/books/v1/volumes?q=intitle:$query+inauthor:$query');
+    final response =
+        await http.get('https://www.googleapis.com/books/v1/volumes?q=$query');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data != null) {
@@ -85,8 +85,10 @@ class _HomePageState extends State<HomePage> {
               [];
           if (data['totalItems'] == 0) {
             _books.add(Book(
+                id: "",
                 title: "Nessun risultato trovato",
                 author: "",
+                editor: "",
                 synopsis: "",
                 price: "",
                 thumbnail: ""));
@@ -97,6 +99,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+/*
 class BookPage extends StatelessWidget {
   final Book book;
 
@@ -118,11 +121,19 @@ class BookPage extends StatelessWidget {
               Image.network(book.thumbnail),
               Padding(
                 padding: const EdgeInsets.all(10.0),
+                child: Text(book.id, style: TextStyle(fontSize: 10)),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
                 child: Text(book.title, style: drip),
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(book.author, style: drip),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(book.editor, style: drip),
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
@@ -137,39 +148,49 @@ class BookPage extends StatelessWidget {
         )));
   }
 }
-
+*/
 class Book {
-  final String title;
-  final String author;
-  final String synopsis;
-  final String price;
-  final String thumbnail;
+  late String id;
+  late String title;
+  late String author;
+  late String editor;
+  late String synopsis;
+  late String price;
+  late String thumbnail;
 
   Book({
+    required this.id,
     required this.title,
     required this.author,
+    required this.editor,
     required this.synopsis,
     required this.price,
     required this.thumbnail,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
+    final id = json['id'];
     final price = json['saleInfo']['listPrice'] != null
-        ? 'EUR' + json['saleInfo']['listPrice']['amount'].toStringAsFixed(2)
+        ? '€' + json['saleInfo']['listPrice']['amount'].toStringAsFixed(2)
         : 'Prezzo non disponibile';
-    final thumbnail = json['volumeInfo']['imageLinks'] != null
-        ? json['volumeInfo']['imageLinks']['thumbnail']
-        : 'https://www.fcpindustriale.it/wp-content/uploads/2017/07/noimage.jpg';
     final title = json['volumeInfo']['title'].toString();
     final author = json['volumeInfo']['authors'][0] != null
         ? json['volumeInfo']['authors'][0].toString()
         : 'Autore non disponibile';
+    final editor = json['volumeInfo']['publisher'] != null
+        ? json['volumeInfo']['publisher'].toString()
+        : 'Editore non disponibile';
     final synopsis = json['volumeInfo']['description'] != null
         ? json['volumeInfo']['description'].toString()
         : 'Sintesi non disponibile';
+    final thumbnail = json['volumeInfo']['imageLinks'] != null
+        ? json['volumeInfo']['imageLinks']['thumbnail']
+        : 'https://www.fcpindustriale.it/wp-content/uploads/2017/07/noimage.jpg';
     return Book(
+      id: id,
       title: title,
       author: author,
+      editor: editor,
       synopsis: synopsis,
       price: price,
       thumbnail: thumbnail,
