@@ -73,8 +73,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void searchBooks(String query) async {
-    final response =
-        await http.get('https://www.googleapis.com/books/v1/volumes?q=$query');
+    var url =
+        Uri.https("www.googleapis.com", "/books/v1/volumes", {'q': query});
+    final response = await http.get(url);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data != null) {
@@ -98,7 +99,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 }
-
 
 class BookPage extends StatelessWidget {
   final Book book;
